@@ -28,6 +28,7 @@ builder.Services.AddDbContext<ContextoAutor>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
 );
 
+
 builder.Services.AddMediatR(typeof(Nuevo.Manejador).Assembly);
 builder.Services.AddAutoMapper(typeof(Consulta.Manejador));
 
@@ -36,6 +37,12 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseCors(builder =>
+    {
+        builder.WithOrigins("http://localhost:3000")
+               .AllowAnyHeader()
+               .AllowAnyMethod();
+    });
     app.UseSwagger();
     app.UseSwaggerUI();
 }
