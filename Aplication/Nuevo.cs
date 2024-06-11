@@ -7,7 +7,7 @@ namespace ApiMicroservice.Autor.Aplication
 {
     public class Nuevo
     {
-        public class Ejecuta : IRequest
+        public class Ejecuta : IRequest<int> // Implementa IRequest<int>
         {
             public string Nombre { get; set; }
             public string Apellido { get; set; }
@@ -23,32 +23,32 @@ namespace ApiMicroservice.Autor.Aplication
             }
         }
 
-        public class Manejador : IRequestHandler<Ejecuta>
+        public class Manejador : IRequestHandler<Ejecuta, int> // Especifica IRequestHandler<Ejecuta, int>
         {
-            public readonly ContextoAutor _context;
+            private readonly ContextoAutor _context;
             public Manejador(ContextoAutor contexto)
             {
                 _context = contexto;
             }
-            public async Task<Unit> Handle(Ejecuta request, CancellationToken cancellationToken)
+
+            public async Task<int> Handle(Ejecuta request, CancellationToken cancellationToken)
             {
                 var autorLibro = new AutorLibro
                 {
                     Nombre = request.Nombre,
                     Apellido = request.Apellido,
                     FechaNacimiento = request.FechaNacimiento,
-                    AutorLibroGuid = Convert.ToString(Guid.NewGuid())
+                    AutorLibroGuid = Guid.NewGuid().ToString()
                 };
+
                 _context.AutorLibros.Add(autorLibro);
                 var respuesta = await _context.SaveChangesAsync();
                 if (respuesta > 0)
                 {
-                    return Unit.Value;
+                    return autorLibro.AutorLibroId; // Devolvemos el AutorLibroId
                 }
-                throw new Exception("No se pudo insrtar el Autor del libro");
+                throw new Exception("No se pudo insertar el Autor del libro");
             }
         }
-
-
     }
 }

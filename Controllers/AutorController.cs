@@ -17,17 +17,19 @@ namespace ApiMicroservice.Autor.Controllers
             _mediator = mediator;
         }
         [HttpPost]
-        public async Task<ActionResult<Unit>> Crear(Nuevo.Ejecuta data)
+        public async Task<ActionResult<int>> Crear(Nuevo.Ejecuta data)
         {
-            return await _mediator.Send(data);
+            var result = await _mediator.Send(data);
+            return Ok(result);
         }
+
         [HttpGet]
         public async Task<ActionResult<List<AutorDto>>> GetAutores()
         {
             return await _mediator.Send(new Consulta.ListaAutor());
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<AutorDto>> GetAutorLibro(string id)
+        public async Task<ActionResult<AutorDto>> GetAutorLibro(int id)
         {
             return await _mediator.Send(new ConsultaFiltro.AutorUnico { AutorGuid = id });
         }

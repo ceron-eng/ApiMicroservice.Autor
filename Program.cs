@@ -1,7 +1,5 @@
 using ApiMicroservice.Autor.Aplication;
 using ApiMicroservice.Autor.Persistencia;
-using ApiMicroservice.Autor.Aplication;
-using ApiMicroservice.Autor.Persistencia;
 using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -21,13 +19,22 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddControllers()
-    .AddFluentValidation
-    (cfg => cfg.RegisterValidatorsFromAssemblyContaining<Nuevo>());
+    .AddFluentValidation(cfg => cfg.RegisterValidatorsFromAssemblyContaining<Nuevo>());
 
+// Configurar el contexto para usar SQL Server en lugar de MySQL
 builder.Services.AddDbContext<ContextoAutor>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+    options.UseSqlServer(connectionString)
 );
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
+});
 
 builder.Services.AddMediatR(typeof(Nuevo.Manejador).Assembly);
 builder.Services.AddAutoMapper(typeof(Consulta.Manejador));
@@ -37,12 +44,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseCors(builder =>
-    {
-        builder.WithOrigins("http://localhost:3000")
-               .AllowAnyHeader()
-               .AllowAnyMethod();
-    });
+    app.UseCors("AllowAllOrigins");
+
     app.UseSwagger();
     app.UseSwaggerUI();
 }
